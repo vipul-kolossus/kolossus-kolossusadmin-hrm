@@ -1,9 +1,3 @@
-import os
-import django
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hrm_project.settings')
-django.setup()
-
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from employees.models import Department, Employee, LeaveType, LeaveRequest
