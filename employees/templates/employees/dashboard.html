@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - HRM Pro{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="value">{{ total_employees }}</div>
+                    <div class="label">Active Employees</div>
+                </div>
+                <div class="icon"><i class="fas fa-users"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card" style="background: linear-gradient(135deg, #059669, #047857);">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="value">{{ total_departments }}</div>
+                    <div class="label">Departments</div>
+                </div>
+                <div class="icon"><i class="fas fa-building"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card" style="background: linear-gradient(135deg, #d97706, #b45309);">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="value">{{ pending_leaves }}</div>
+                    <div class="label">Pending Leaves</div>
+                </div>
+                <div class="icon"><i class="fas fa-calendar-alt"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card" style="background: linear-gradient(135deg, #7c3aed, #6d28d9);">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="value">{{ present_today }}</div>
+                    <div class="label">Present Today</div>
+                </div>
+                <div class="icon"><i class="fas fa-clock"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0">Recent Employees</h6>
+                    <a href="{% url 'employee_create' %}" class="btn btn-sm btn-primary"><i class="fas fa-plus me-1"></i>Add New</a>
+                </div>
+            </div>
+            <div class="card-body px-4">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Department</th>
+                                <th>Designation</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for emp in recent_employees %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        {% if emp.profile_picture %}
+                                        <img src="{{ emp.profile_picture.url }}" class="avatar" alt="">
+                                        {% else %}
+                                        <div class="avatar-placeholder">{{ emp.first_name.0 }}{{ emp.last_name.0 }}</div>
+                                        {% endif %}
+                                        <div>
+                                            <div class="fw-500">{{ emp.get_full_name }}</div>
+                                            <div class="text-muted small">{{ emp.employee_id }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ emp.department.name|default:"-" }}</td>
+                                <td>{{ emp.designation|default:"-" }}</td>
+                                <td>
+                                    <span class="badge badge-{{ emp.status }} rounded-pill px-3 py-1">
+                                        {{ emp.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center text-muted py-4">No employees yet. <a href="{% url 'employee_create' %}">Add the first one</a></td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <a href="{% url 'employee_list' %}" class="btn btn-outline-primary btn-sm">View All Employees</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
+                <h6 class="fw-bold mb-0">Departments Overview</h6>
+            </div>
+            <div class="card-body px-4">
+                {% for dept in dept_stats %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small">{{ dept.name }}</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="progress" style="width: 80px; height: 6px;">
+                            <div class="progress-bar bg-primary" style="width: {% if total_employees > 0 %}{% widthratio dept.emp_count total_employees 100 %}{% else %}0{% endif %}%"></div>
+                        </div>
+                        <span class="badge bg-light text-dark">{{ dept.emp_count }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center small py-3">No departments yet</p>
+                {% endfor %}
+                <a href="{% url 'department_list' %}" class="btn btn-outline-secondary btn-sm w-100 mt-2">Manage Departments</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
+                <h6 class="fw-bold mb-0">Announcements</h6>
+            </div>
+            <div class="card-body px-4">
+                {% for ann in announcements %}
+                <div class="mb-3 pb-3 border-bottom">
+                    <div class="fw-500 small">{{ ann.title }}</div>
+                    <div class="text-muted small">{{ ann.content|truncatechars:80 }}</div>
+                    <div class="text-muted" style="font-size: 0.75rem;">{{ ann.created_at|date:"M d, Y" }}</div>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center small py-2">No announcements</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-2">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0">Recent Leave Requests</h6>
+                    <a href="{% url 'leave_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+            </div>
+            <div class="card-body px-4">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr><th>Employee</th><th>Leave Type</th><th>Duration</th><th>Status</th><th>Action</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for leave in recent_leaves %}
+                            <tr>
+                                <td>{{ leave.employee.get_full_name }}</td>
+                                <td>{{ leave.leave_type.name }}</td>
+                                <td>{{ leave.start_date }} to {{ leave.end_date }} ({{ leave.total_days }} days)</td>
+                                <td>
+                                    <span class="badge badge-{{ leave.status }} rounded-pill px-3 py-1">{{ leave.get_status_display }}</span>
+                                </td>
+                                <td>
+                                    {% if leave.status == 'pending' %}
+                                    <a href="{% url 'leave_review' leave.pk %}" class="btn btn-sm btn-warning">Review</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5" class="text-center text-muted py-3">No leave requests</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

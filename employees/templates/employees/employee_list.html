@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Employees - HRM Pro{% endblock %}
+{% block page_title %}Employees{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0">All Employees</h6>
+            <a href="{% url 'employee_create' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i>Add Employee</a>
+        </div>
+        <form method="get" class="row g-2 pb-3">
+            <div class="col-md-5">
+                <input type="text" name="q" value="{{ query }}" class="form-control form-control-sm" placeholder="Search by name, email, ID...">
+            </div>
+            <div class="col-md-3">
+                <select name="dept" class="form-select form-select-sm">
+                    <option value="">All Departments</option>
+                    {% for d in departments %}
+                    <option value="{{ d.pk }}" {% if selected_dept == d.pk|stringformat:"s" %}selected{% endif %}>{{ d.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select form-select-sm">
+                    <option value="">All Status</option>
+                    <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if selected_status == 'inactive' %}selected{% endif %}>Inactive</option>
+                    <option value="on_leave" {% if selected_status == 'on_leave' %}selected{% endif %}>On Leave</option>
+                    <option value="terminated" {% if selected_status == 'terminated' %}selected{% endif %}>Terminated</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary btn-sm w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+    <div class="card-body px-4">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Department</th>
+                        <th>Designation</th>
+                        <th>Type</th>
+                        <th>Date Joined</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emp in employees %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                {% if emp.profile_picture %}
+                                <img src="{{ emp.profile_picture.url }}" class="avatar" alt="">
+                                {% else %}
+                                <div class="avatar-placeholder">{{ emp.first_name.0 }}{{ emp.last_name.0 }}</div>
+                                {% endif %}
+                                <div>
+                                    <div class="fw-500">{{ emp.get_full_name }}</div>
+                                    <div class="text-muted small">{{ emp.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ emp.department.name|default:"-" }}</td>
+                        <td>{{ emp.designation|default:"-" }}</td>
+                        <td><span class="badge bg-light text-dark">{{ emp.get_employment_type_display }}</span></td>
+                        <td>{{ emp.date_joined|date:"M d, Y" }}</td>
+                        <td>
+                            <span class="badge badge-{{ emp.status }} rounded-pill px-3 py-1">{{ emp.get_status_display }}</span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a href="{% url 'employee_detail' emp.pk %}" class="btn btn-sm btn-outline-info" title="View"><i class="fas fa-eye"></i></a>
+                                <a href="{% url 'employee_edit' emp.pk %}" class="btn btn-sm btn-outline-warning" title="Edit"><i class="fas fa-edit"></i></a>
+                                <a href="{% url 'employee_delete' emp.pk %}" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="text-center text-muted py-5">
+                        <i class="fas fa-users fa-3x mb-3 d-block opacity-25"></i>
+                        No employees found. <a href="{% url 'employee_create' %}">Add the first employee</a>
+                    </td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

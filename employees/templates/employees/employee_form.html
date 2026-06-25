@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}{{ title }} - HRM Pro{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
+        <h6 class="fw-bold mb-0">{{ title }}</h6>
+    </div>
+    <div class="card-body px-4">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6">{{ form.employee_id|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.email|as_crispy_field }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">{{ form.first_name|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.last_name|as_crispy_field }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">{{ form.phone|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.gender|as_crispy_field }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">{{ form.date_of_birth|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.date_joined|as_crispy_field }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">{{ form.department|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.designation|as_crispy_field }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">{{ form.employment_type|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.status|as_crispy_field }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">{{ form.salary|as_crispy_field }}</div>
+                <div class="col-md-6">{{ form.manager|as_crispy_field }}</div>
+            </div>
+            {{ form.address|as_crispy_field }}
+            {{ form.profile_picture|as_crispy_field }}
+            <div class="d-flex gap-2 mt-3">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save</button>
+                <a href="{% url 'employee_list' %}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
